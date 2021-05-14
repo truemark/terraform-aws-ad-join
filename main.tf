@@ -60,5 +60,17 @@ resource "aws_ssm_document" "ad_join" {
 DOC
 }
 
+locals {
+  tag_values = length(var.association_tag_values) == 0 ? [var.directory_name] : var.association_tag_values
+}
+
+resource "aws_ssm_association" "ad_join" {
+  count = var.create_association && var.create_document ? 1 : 0
+  name = aws_ssm_document.ad_join[count.index].name
+  targets {
+    key = "tag:${var.association_tag_name}"
+    values = local.tag_values
+  }
+}
 
 
