@@ -72,5 +72,3 @@ resource "aws_ssm_association" "ad_join" {
     values = local.tag_values
   }
 }
-
-
