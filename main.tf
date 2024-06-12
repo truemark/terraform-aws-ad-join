@@ -1,6 +1,6 @@
 resource "aws_iam_role" "ad_join" {
   count = var.create_role ? 1 : 0
-  name = var.role_name
+  name  = var.role_name
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [
@@ -22,9 +22,9 @@ data "aws_iam_policy" "AmazonSSMManagedInstanceCore" {
 }
 
 resource "aws_iam_role_policy_attachment" "AmazonSSMManagedInstanceCore" {
-  count = var.create_role ? 1 : 0
+  count      = var.create_role ? 1 : 0
   policy_arn = data.aws_iam_policy.AmazonSSMManagedInstanceCore.arn
-  role = aws_iam_role.ad_join[count.index].name
+  role       = aws_iam_role.ad_join[count.index].name
 }
 
 data "aws_iam_policy" "AmazonSSMDirectoryServiceAccess" {
@@ -32,16 +32,16 @@ data "aws_iam_policy" "AmazonSSMDirectoryServiceAccess" {
 }
 
 resource "aws_iam_role_policy_attachment" "AmazonSSMDirectoryServiceAccess" {
-  count = var.create_role ? 1 : 0
+  count      = var.create_role ? 1 : 0
   policy_arn = data.aws_iam_policy.AmazonSSMDirectoryServiceAccess.arn
-  role = aws_iam_role.ad_join[count.index].name
+  role       = aws_iam_role.ad_join[count.index].name
 }
 
 resource "aws_ssm_document" "ad_join" {
-  count = var.create_document && var.directory_id != "" && var.directory_name != "" && length(var.dns_ip_addresses) > 0 ? 1 : 0
-  name = var.document_name
+  count         = var.create_document && var.directory_id != "" && var.directory_name != "" && length(var.dns_ip_addresses) > 0 ? 1 : 0
+  name          = var.document_name
   document_type = "Command"
-  content = <<DOC
+  content       = <<DOC
   {
     "schemaVersion": "2.2",
     "description": "aws:domainJoin",
@@ -66,9 +66,9 @@ locals {
 
 resource "aws_ssm_association" "ad_join" {
   count = var.create_association && var.create_document ? 1 : 0
-  name = aws_ssm_document.ad_join[count.index].name
+  name  = aws_ssm_document.ad_join[count.index].name
   targets {
-    key = "tag:${var.association_tag_name}"
+    key    = "tag:${var.association_tag_name}"
     values = local.tag_values
   }
 }
